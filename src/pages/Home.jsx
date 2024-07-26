@@ -4,20 +4,32 @@ import Stepper from "../components/Stepper";
 import Step1 from "../components/Step1";
 import Step2 from "../components/Step2";
 import Step3 from "../components/Step3";
+import { toast } from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 const App = () => {
   const [step, setStep] = useState(1);
   const methods = useForm();
+  const navigate = useNavigate();
 
   const onSubmit = async (data) => {
     if (step < 3) {
       setStep(step + 1);
     } else {
       try {
-        const response = await axios.post("https://codebuddy.review/submit", data);
-        alert("Data submitted successfully");
+        const response = await fetch("https://codebuddy.review/submit", {
+          method: "POST",
+          body: JSON.stringify(data),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        if (response.ok) {
+          toast.success("Data submitted successfully");
+          navigate("/posts");
+        }
       } catch (error) {
-        console.error("Error submitting data:", error);
+        toast.error("An error occurred while submitting the data");
       }
     }
   };
@@ -36,13 +48,13 @@ const App = () => {
                   <p className="text-lg font-medium">Login Details</p>
                   <p>Please fill out all the fields.</p>
                 </div>
-                <div className="lg:col-span-2">
+                <form className="lg:col-span-2" onSubmit={methods.handleSubmit(onSubmit)}>
                   <div className="grid grid-cols-1 gap-4 gap-y-2 text-sm md:grid-cols-5">
                     {step === 1 && <Step1 onSubmit={onSubmit} />}
                     {step === 2 && <Step2 onSubmit={onSubmit} />}
                     {step === 3 && <Step3 onSubmit={onSubmit} />}
-                    <div className="text-right md:col-span-5">
-                      <div className="inline-flex items-end">
+                    <div className="text-right md:col-span-5 ">
+                      <div className="inline-flex items-end flex flex-wrap">
                         {/* back button */}
                         <button
                           className="rounded bg-white px-4 py-2 font-bold text-black ml-2"
@@ -62,14 +74,14 @@ const App = () => {
                         <button
                           type="submit"
                           className="ml-2 rounded bg-indigo-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
-                          disabled={step}
+                          // disabled={step}
                         >
                           Submit
                         </button>
                       </div>
                     </div>
                   </div>
-                </div>
+                </form>
               </div>
             </div>
           </div>
