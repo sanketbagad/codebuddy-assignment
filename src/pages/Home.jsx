@@ -1,29 +1,35 @@
-import { Icon } from "@iconify/react";
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
+import { useForm, FormProvider } from "react-hook-form";
+import Stepper from "../components/Stepper";
+import Step1 from "../components/Step1";
+import Step2 from "../components/Step2";
+import Step3 from "../components/Step3";
 
-const Home = () => {
+const App = () => {
+  const [step, setStep] = useState(1);
+  const methods = useForm();
+
+  const onSubmit = async (data) => {
+    if (step < 3) {
+      setStep(step + 1);
+    } else {
+      try {
+        const response = await axios.post("https://codebuddy.review/submit", data);
+        alert("Data submitted successfully");
+      } catch (error) {
+        console.error("Error submitting data:", error);
+      }
+    }
+  };
+
   return (
-    <div className="rounded-lg bg-gray-50 p-7 text-gray-900 shadow-lg">
-      <h1 className="mb-4 flex items-center text-4xl font-bold">
-        <Icon icon="mdi:home" className="mr-2" />
-        Home
-      </h1>
-
-      <h2 className="mb-3 text-2xl">Welcome to the home page!</h2>
-
-      <p className="mb-7">
-        Lorem ipsum dolor, sit amet consectetur adipisicing elit. Natus eos quis iure unde incidunt?
-        Hic, quisquam. Voluptate placeat officiis corporis dolores ea unde maxime, sed nulla cumque
-        amet quam aliquam quas incidunt debitis sit aut a soluta quisquam repellat dignissimos qui.
-        Perspiciatis similique quaerat reiciendis nam aliquam?
-      </p>
-
-      <Link to="/posts" className="flex items-center text-blue-600 hover:underline">
-        Posts
-        <Icon icon="mdi:arrow-right" className="ml-2" />
-      </Link>
-    </div>
+    <FormProvider {...methods}>
+      <Stepper step={step} setStep={setStep} />
+      {step === 1 && <Step1 onSubmit={onSubmit} />}
+      {step === 2 && <Step2 onSubmit={onSubmit} />}
+      {step === 3 && <Step3 onSubmit={onSubmit} />}
+    </FormProvider>
   );
 };
 
-export default Home;
+export default App;
